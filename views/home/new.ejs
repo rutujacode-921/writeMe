@@ -1,0 +1,34 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-4 col-6 offset-3">
+  <h3>Post a New Task</h3>
+  <form action="/tasks" method="POST">
+    <div class="mb-3">
+      <label for="subject" class="form-label">Subject</label>
+      <input type="text" name="data[subject]" id="subject" class="form-control" placeholder="e.g. Chemistry Record Book" required>
+    </div>
+    <div class="mb-3">
+      <label for="pages" class="form-label">pages</label>
+      <input type="number" name="data[pages]" id="pages" class="form-control" placeholder="200-300" required>
+    </div>
+
+   
+    <div class="mb-3">
+      <label for="price" class="form-label">Price (₹)</label>
+      <input type="number" name="data[price]" id="price" class="form-control" placeholder="200" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="deadline" class="form-label">Deadline</label>
+      <input type="text" name="data[deadline]" id="deadline" class="form-control" placeholder="e.g. 2 oct 2026">
+    </div>
+
+     <div class="mb-3">
+      <label for="location" class="form-label">Location</label>
+      <input type="text" name="data[location]" id="location" class="form-control" placeholder="e.g. Library / Block A" required>
+    </div>
+
+
+    <button class="btn btn-success">Post Task</button>
+  </form>
+</div>

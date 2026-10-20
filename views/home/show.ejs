@@ -1,0 +1,89 @@
+<% layout("/layouts/boilerplate") %>
+ <body>
+    <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+        <div class="d-flex align-items-center justify-content-between mb-3 px-2">
+            <h4>Search Results for: "<%= searchQuery %>"</h4>
+            <a href="/" class="btn btn-sm btn-outline-secondary">Clear Search</a>
+        </div>
+        <% if (allData.length === 0) { %>
+            <p class="text-muted px-2">No tasks found matching this location.</p>
+        <% } %>
+    <% } %>
+    <div class="row row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-xs-1 " >
+        <% for(let data of allData){ %>
+            <div class="card col-12 col-md-4 col-lg-3" style="margin: 0.5rem;  ">
+                
+                <div class="card-body">
+                    <p class="card-text">
+                        <img src="<%= data.image %>" class="card-img-top" alt="..." style="height: 150px; width: 100%; object-fit: cover;" ><br>
+
+
+                        <b> subject :  </b> <%=data.subject %><br>
+                        <b> price : &#8377</b><%=data.price %><br>
+                        <b>deadline : </b><%=data.deadline %><br>
+                        <b>location : </b><%=data.location %><br>
+                    </p>
+                   
+                   
+                    <div class="d-flex gap-2">
+                     <% if(data.status === 'open') { %>
+                        <form method="post"action="/listing/<%= data._id %>/accept">
+                            <button class="btn btn-dark">accept</button>
+                        </form>
+                    <% } else { %>
+                        <form method="post"action="/listing/<%= data._id %>/accept">
+                            <button class="btn btn-dark" disabled>accepted</button>
+                        </form>
+
+                    <% } %>
+                    <a href="/messages/<%= data._id %>"><button class="btn btn-primary">Message</button></a>
+                    </div> 
+                </div>
+            </div>      
+              
+        <% }%>
+    </div>
+   
+</body>
+                        
+
+<!-- <% layout("/layouts/boilerplate") %>
+<body>
+    <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+        <div class="d-flex align-items-center justify-content-between mb-3 px-2">
+            <h4>Search Results for: "<%= searchQuery %>"</h4>
+            <a href="/" class="btn btn-sm btn-outline-secondary">Clear Search</a>
+        </div>
+        <% if (allData.length === 0) { %>
+            <p class="text-muted px-2">No tasks found matching this location.</p>
+        <% } %>
+    <% } %>
+
+    <div class="row row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-xs-1">
+        <% for(let data of allData) { %>
+            <div class="card col-12 col-md-4 col-lg-3" style="margin: 0.5rem;">
+                <div class="card-body">
+                    <img src="<%= data.image %>" class="card-img-top" alt="..." style="height: 150px; object-fit: cover;">
+                    <p class="card-text mt-2">
+                        <b>subject : </b> <%= data.subject %><br>
+                        <b>price : &#8377;</b><%= data.price %><br>
+                        <b>deadline : </b><%= data.deadline %><br>
+                        <b>location : </b><%= data.location %><br>
+                    </p>
+                    <div class="d-flex gap-2">
+                        <% if(data.status === 'open') { %>
+                            <form method="POST" action="/listing/<%= data._id %>/accept">
+                                <button class="btn btn-dark btn-sm">accept</button>
+                            </form>
+                        <% } else { %>
+                            <form method="POST" action="/listing/<%= data._id %>/accept">
+                                <button class="btn btn-dark btn-sm" disabled>accepted</button>
+                            </form>
+                        <% } %>
+                        <a href="#" class="btn btn-primary btn-sm">Message</a>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</body> -->

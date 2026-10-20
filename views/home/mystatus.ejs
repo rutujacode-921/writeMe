@@ -1,0 +1,104 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-4">
+  <h3 class="mb-4">My Status Dashboard</h3>
+
+  <!-- Tabs Header -->
+  <ul class="nav nav-tabs mb-4" id="statusTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="posted-tab" data-bs-toggle="tab" data-bs-target="#posted" type="button" role="tab">
+        Tasks I Posted
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="accepted-tab" data-bs-toggle="tab" data-bs-target="#accepted" type="button" role="tab">
+        Tasks I Accepted
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="statusTabsContent">
+
+    <!-- 1. TASKS POSTED -->
+    <div class="tab-pane fade show active" id="posted" role="tabpanel">
+      <div class="row">
+        <% if(myPostedTasks.length === 0) { %>
+          <p class="text-muted">You haven't posted any tasks yet.</p>
+        <% } %>
+        <% for(let task of myPostedTasks) { %>
+          <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="card-title text-capitalize mb-0"><%= task.subject %></h5>
+                  
+                  <% if(task.status === 'open') { %>
+                    <span class="badge bg-secondary">Open</span>
+                  <% } else if(task.status === 'accepted') { %>
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  <% } else if(task.status === 'submitted') { %>
+                    <span class="badge bg-primary">Submitted</span>
+                  <% } else if(task.status === 'completed') { %>
+                    <span class="badge bg-success">Completed</span>
+                  <% } %>
+                </div>
+
+                <p class="card-text mb-1"><strong>Price:</strong> ₹<%= task.price %></p>
+                <p class="card-text mb-1"><strong>Deadline:</strong> <%= task.deadline %></p>
+                <p class="card-text mb-3"><strong>Location:</strong> <%= task.location %></p>
+
+                <% if(task.status === 'submitted') { %>
+                  <form action="/listing/<%= task._id %>/status" method="POST">
+                    <input type="hidden" name="status" value="completed">
+                    <button class="btn btn-sm btn-success w-100">Mark Completed & Pay</button>
+                  </form>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- 2. TASKS ACCEPTED -->
+    <div class="tab-pane fade" id="accepted" role="tabpanel">
+      <div class="row">
+        <% if(myAcceptedTasks.length === 0) { %>
+          <p class="text-muted">You haven't accepted any tasks yet.</p>
+        <% } %>
+        <% for(let task of myAcceptedTasks) { %>
+          <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="card-title text-capitalize mb-0"><%= task.subject %></h5>
+                  
+                  <% if(task.status === 'accepted') { %>
+                    <span class="badge bg-warning text-dark">Pending Work</span>
+                  <% } else if(task.status === 'submitted') { %>
+                    <span class="badge bg-info text-dark">Submitted</span>
+                  <% } else if(task.status === 'completed') { %>
+                    <span class="badge bg-success">Completed</span>
+                  <% } %>
+                </div>
+
+                <p class="card-text mb-1"><strong>Price:</strong> ₹<%= task.price %></p>
+                <p class="card-text mb-1"><strong>Deadline:</strong> <%= task.deadline %></p>
+                <p class="card-text mb-3"><strong>Location:</strong> <%= task.location %></p>
+
+                <% if(task.status === 'accepted') { %>
+                  <form action="/listing/<%= task._id %>/status" method="POST">
+                    <input type="hidden" name="status" value="submitted">
+                    <button class="btn btn-sm btn-primary w-100">Mark as Submitted</button>
+                  </form>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+  </div>
+</div>

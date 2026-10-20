@@ -1,0 +1,23 @@
+{
+  "name": "writeme",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Rutuja",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ejs-mate": "^4.0.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "method-override": "^3.0.0",
+    "mongoose": "^9.11.2",
+    "nodemon": "^1.14.10",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^9.2.1"
+  }
+}
