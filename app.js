@@ -159,43 +159,8 @@ app.get("/", async (req, res) => {
 });
 //search
 
-//message.........
 
-// View Chat for a Task
-// app.get("/messages/:taskId", async (req, res) => {
-//     try {
-//         const { taskId } = req.params;
-//         const task = await Data.findById(taskId);
-//         const messages = await Message.find({ task: taskId }).sort({ createdAt: 1 });
 
-//         res.render("home/messages", { task, messages });
-//     } catch (err) {
-//         console.log(err);
-//         res.redirect("/");
-//     }
-// });
-
-// Send Message
-app.post("/messages/:taskId", async (req, res) => {
-    try {
-        const { taskId } = req.params;
-        const { text, sender } = req.body;
-
-        const newMessage = new Message({
-            sender: req.user.username,
-            receiver: "Task Poster",
-            task: taskId,
-            text
-        });
-
-        await newMessage.save();
-        res.redirect(`/messages/${taskId}`);
-    } catch (err) {
-        console.log(err);
-        res.redirect("/");
-    }
-});
-//message
 
 //login page........
 // Render Signup Page
@@ -259,18 +224,22 @@ app.get("/messages/:taskId", isLoggedIn, async (req, res) => {
         const task = await Data.findById(taskId).populate("author");
 
         if (!task) {
-            return res.redirect("/");
+            return res.redirect("/inbox");
         }
 
-        // Fetch ALL messages for this task so both the task owner and commenters can see the thread
-        const messages = await Message.find({ taskId: taskId })
-            .populate("sender", "username")
-            .populate("receiver", "username");
+        // Fetch messages for this task that involve the currently logged-in user
+        const messages = await Message.find({
+            taskId: taskId,
+            $or: [
+                { sender: req.user._id },
+                { receiver: req.user._id }
+            ]
+        }).populate("sender receiver");
 
         res.render("home/messages.ejs", { task, messages, currentUser: req.user });
     } catch (err) {
-        console.log("CHAT ERROR:", err);
-        res.redirect("/");
+        console.log("FETCH MESSAGES ERROR:", err);
+        res.redirect("/inbox");
     }
 });
 // Send Message (Linked to logged-in user)
@@ -303,29 +272,34 @@ app.get("/messages/:taskId", isLoggedIn, async (req, res) => {
 // User Inbox - View all chats the logged-in user participated in
 app.get("/inbox", isLoggedIn, async (req, res) => {
     try {
-        // Find all messages involving the logged-in user
+        // 1. Fetch messages without any .populate() to avoid model crashes
         const messages = await Message.find({
             $or: [
                 { sender: req.user._id },
                 { receiver: req.user._id }
             ]
-        }).populate("taskId");
+        }).sort({ createdAt: -1 });
 
-        // Extract unique tasks from messages
         const taskMap = new Map();
-        messages.forEach(msg => {
+
+        // 2. Look up each task manually by its ID string
+        for (let msg of messages) {
             if (msg.taskId) {
-                taskMap.set(msg.taskId._id.toString(), msg.taskId);
+                const taskIdStr = msg.taskId.toString();
+                if (!taskMap.has(taskIdStr)) {
+                    const foundTask = await Data.findById(taskIdStr);
+                    if (foundTask) {
+                        taskMap.set(taskIdStr, foundTask);
+                    }
+                }
             }
-        });
+        }
 
         const tasks = Array.from(taskMap.values());
-
-        // Render inbox with the 'tasks' variable expected by inbox.ejs
         res.render("home/inbox.ejs", { tasks, currentUser: req.user });
     } catch (err) {
         console.log("INBOX ERROR:", err);
-        res.redirect("/");
+        res.render("home/inbox.ejs", { tasks: [], currentUser: req.user });
     }
 });
 //personal messages
@@ -402,4 +376,12 @@ app.post("/tasks", isLoggedIn, async (req, res) => {
         console.log(err);
         res.redirect("/");
     }
+});
+
+app.get("/clean-db", async (req, res) => {
+    // Delete messages that don't have a valid taskId attached
+    await Message.deleteMany({ taskId: { $exists: false } });
+    await Message.deleteMany({ taskId: null });
+    res.send("Cleaned corrupted messages from DB!");
+
 });

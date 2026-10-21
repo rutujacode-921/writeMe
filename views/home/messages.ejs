@@ -46,7 +46,8 @@
             <% for(let msg of messages) { %>
                 <div class="mb-2 p-2 rounded bg-white shadow-sm">
                     <!-- Displays the exact username entered during signup -->
-                    <strong class="text-primary"><%= msg.sender ? msg.sender.username : "User" %>:</strong>                    <span><%= msg.text %></span>
+                    <strong class="text-primary"><%= msg.sender ? msg.sender.username : "User" %>:</strong>                    
+                    <span><%= msg.content %></span>
                     <div class="text-muted" style="font-size: 0.75rem; text-align: right;">
                         <%= new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %>
                     </div>

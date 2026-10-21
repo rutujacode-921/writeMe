@@ -1,21 +1,23 @@
 <% layout("/layouts/boilerplate") %>
 
-<div class="container mt-4" style="max-width: 700px;">
-    <h3 class="mb-4">My Conversations</h3>
-    
-    <% if (tasks.length === 0) { %>
-        <p class="text-muted">You haven't started any chats yet. Browse tasks and click "Message" to start a conversation!</p>
+<div class="container mt-4">
+    <h3 class="mb-4">Your Messages & Active Chats</h3>
+
+    <% if (!tasks || tasks.length === 0) { %>
+        <div class="alert alert-info">
+            No message threads found yet. Start a chat on any task!
+        </div>
     <% } else { %>
         <div class="list-group">
-            <% for(let task of tasks) { %>
-                <a href="/messages/<%= task._id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <% tasks.forEach(task => { %>
+                <a href="/messages/<%= task._id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3 mb-2 shadow-sm rounded border">
                     <div>
-                        <h5 class="mb-1"><%= task.subject %></h5>
-                        <p class="mb-1 text-muted small">Location: <%= task.location %> | Price: ₹<%= task.price %></p>
+                        <h5 class="mb-1 text-primary"><%= task.title %></h5>
+                        <p class="mb-0 text-muted small">Task Description: <%= task.description || 'Click to view messages' %></p>
                     </div>
-                    <span class="btn btn-sm btn-outline-primary">Open Chat</span>
+                    <span class="btn btn-sm btn-outline-primary">Open Chat &rarr;</span>
                 </a>
-            <% } %>
+            <% }) %>
         </div>
     <% } %>
 </div>
