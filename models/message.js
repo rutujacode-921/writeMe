@@ -1,54 +1,43 @@
-//const mongoose = require("mongoose");
-
-// const messageSchema = new mongoose.Schema({
-//     sender: {
-//         type: String, // Or mongoose.Schema.Types.ObjectId if using User model
-//         required: true
-//     },
-//     receiver: {
-//         type: String,
-//         required: true
-//     },
-//     task: {
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: "Data" // Points to your task/datamodel
-//     },
-//     text: {
-//         type: String,
-//         required: true
-//     },
-//     createdAt: {
-//         type: Date,
-//         default: Date.now
-//     }
-// });
-
-//module.exports = mongoose.model("Message", messageSchema);
 const mongoose = require("mongoose");
-const messageSchema = new mongoose.Schema({
-    taskId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Data",
-        required: true
+const { Schema } = mongoose;
+
+const messageSchema = new Schema(
+    {
+        taskId: {
+            type: Schema.Types.ObjectId,
+            ref: "Task",
+            required: true,
+            index: true,
+        },
+        sender: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        receiver: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        type: {
+            type: String,
+            enum: [
+                "text",
+                "location_share",
+                "proof_request",
+                "proof_photo",
+                "system",
+            ],
+            default: "text",
+        },
+        content: { type: String, required: true },
+        payload: Schema.Types.Mixed,
+        readAt: Date,
     },
-    sender: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    },
-    receiver: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    },
-    content: {
-        type: String,
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
+    { timestamps: true }
+);
+
+messageSchema.index({ taskId: 1, createdAt: 1 });
+messageSchema.index({ receiver: 1, readAt: 1 });
 
 module.exports = mongoose.model("Message", messageSchema);

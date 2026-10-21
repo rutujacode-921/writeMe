@@ -1,0 +1,54 @@
+<% layout("/layouts/boilerplate") %>
+<%
+    const v = values || {};
+%>
+
+<h1 style="font-size:24px; font-weight:800; margin:16px 0 8px">Welcome, <%= currentUser.name.split(' ')[0] %>! 👋</h1>
+<p class="muted" style="margin:0 0 24px">
+    One quick step — tell us your campus so we can show you the right tasks.
+</p>
+
+<% if (errors && errors.length) { %>
+    <div style="background:rgba(231,76,60,0.1); color:var(--color-danger); padding:12px; border-radius:12px; margin-bottom:16px">
+        <% errors.forEach(function(e) { %>
+            <div><%= e.msg %></div>
+        <% }); %>
+    </div>
+<% } %>
+
+<form method="POST" action="/onboarding">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+    <div class="form-group">
+        <label class="form-label" for="college">College / University</label>
+        <input class="form-input" type="text" name="college" id="college"
+               value="<%= v.college || '' %>"
+               placeholder="e.g. Government Engineering College, Bidar" required />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="campus">Campus / branch (optional)</label>
+        <input class="form-input" type="text" name="campus" id="campus"
+               value="<%= v.campus || '' %>"
+               placeholder="e.g. Main campus, Hostel block" />
+        <div class="form-help">Used to group nearby students. Leave blank to use college name.</div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="defaultPickup">Default pickup point</label>
+        <input class="form-input" type="text" name="defaultPickup" id="defaultPickup"
+               value="<%= v.defaultPickup || '' %>"
+               placeholder="e.g. Main Library" required />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">I want to…</label>
+        <select class="form-select" name="rolePreference" required>
+            <option value="both"      <%= v.rolePreference === 'both' ? 'selected' : '' %>>Post tasks AND write for others</option>
+            <option value="poster"    <%= v.rolePreference === 'poster' ? 'selected' : '' %>>Mostly post tasks</option>
+            <option value="writer"    <%= v.rolePreference === 'writer' ? 'selected' : '' %>>Mostly write for others (earn money)</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--block">Continue</button>
+</form>

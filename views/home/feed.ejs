@@ -1,0 +1,22 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="row row--between" style="margin-bottom:16px">
+    <h1 style="font-size:22px; font-weight:700; margin:0">Open tasks</h1>
+    <a href="/tasks/new" class="btn btn--primary btn--sm">+ Post</a>
+</div>
+
+<form method="GET" action="/" style="margin-bottom:16px">
+    <input class="form-input" type="search" name="q" value="<%= search %>" placeholder="Search by subject, location, or college…" />
+</form>
+
+<% if (tasks.length === 0) { %>
+    <div class="empty">
+        <div class="empty__title">No open tasks right now.</div>
+        <a href="/tasks/new" class="btn btn--primary">Post the first one</a>
+    </div>
+<% } else { %>
+    <div class="muted" style="font-size:13px; margin-bottom:12px"><%= tasks.length %> open task<%= tasks.length === 1 ? '' : 's' %></div>
+    <% tasks.forEach(function(task) { %>
+        <%- include("../includes/components/taskcard.ejs", { task }) %>
+    <% }); %>
+<% } %>

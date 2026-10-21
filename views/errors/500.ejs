@@ -1,0 +1,12 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="empty" style="padding:80px 16px">
+    <div style="font-size:48px; margin-bottom:12px">⚠</div>
+    <div class="empty__title">Something went wrong</div>
+    <% if (typeof message !== 'undefined' && message) { %>
+        <p><%= message %></p>
+    <% } else { %>
+        <p>An unexpected error happened. Try again in a moment.</p>
+    <% } %>
+    <a href="/" class="btn btn--primary" style="margin-top:16px">Back to feed</a>
+</div>

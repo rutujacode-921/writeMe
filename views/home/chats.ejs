@@ -1,0 +1,23 @@
+<% layout("/layouts/boilerplate") %>
+
+<h1 style="font-size:22px; font-weight:700; margin:0 0 16px">Chats</h1>
+
+<% if (!threads.length) { %>
+    <div class="empty">
+        <div class="empty__title">No chats yet</div>
+        <div>Accept a task or wait for someone to message you.</div>
+    </div>
+<% } else { %>
+    <% threads.forEach(function(t) { %>
+        <% const task = t.task; %>
+        <a href="/tasks/<%= task._id %>/chat" class="taskcard">
+            <div class="row row--between">
+                <div style="font-weight:700"><%= task.subject %></div>
+                <%- include("../includes/components/statuspill.ejs", { status: task.status }) %>
+            </div>
+            <div class="muted" style="font-size:13px; margin-top:4px">
+                <%= t.lastMessage.content.slice(0, 80) %>
+            </div>
+        </a>
+    <% }); %>
+<% } %>

@@ -1,38 +1,46 @@
 <% layout("/layouts/boilerplate") %>
 
-<div class="container mt-4">
-    <h2>My Total Earnings</h2>
-    
-    <!-- Earnings Summary Card -->
-    <div class="card text-bg-dark mb-4 shadow-sm" style="max-width: 20rem;">
-        <div class="card-body">
-            <h5 class="card-title">Total Earned</h5>
-            <h3 class="card-text">&#8377;<%= totalEarnings %></h3>
-        </div>
+<h1 style="font-size:22px; font-weight:700; margin:0 0 16px">Earnings</h1>
+
+<div class="stat" style="margin-bottom:16px">
+    <div class="stat__label">Total earned</div>
+    <div class="stat__big">₹<%= totalEarned.toLocaleString('en-IN') %></div>
+    <div class="muted" style="font-size:13px">across <%= completed.length %> completed task<%= completed.length === 1 ? '' : 's' %></div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px">
+    <div class="stat">
+        <div class="stat__label">This month</div>
+        <div style="font-size:22px; font-weight:700; color:var(--color-money)">₹<%= monthEarned.toLocaleString('en-IN') %></div>
+        <div class="muted" style="font-size:12px"><%= monthCount %> task<%= monthCount === 1 ? '' : 's' %></div>
     </div>
+    <div class="stat">
+        <div class="stat__label">Pending</div>
+        <div style="font-size:22px; font-weight:700; color:var(--color-warning)">₹<%= pendingTotal.toLocaleString('en-IN') %></div>
+        <div class="muted" style="font-size:12px">awaiting confirmation</div>
+    </div>
+</div>
 
-    <h4 class="mb-3">Completed / Accepted Tasks</h4>
+<h2 style="font-size:15px; text-transform:uppercase; letter-spacing:0.04em; color:var(--color-text-muted); margin:24px 0 12px">
+    Recent completed
+</h2>
+<% if (!completed.length) { %>
+    <div class="muted" style="padding:16px 0">No completed tasks yet. Accept one from the feed to start.</div>
+<% } else { %>
+    <% completed.forEach(function(task) { %>
+        <a href="/tasks/<%= task._id %>" class="taskcard">
+            <div class="row row--between">
+                <div style="font-weight:700"><%= task.subject %></div>
+                <span class="badge badge--money">+₹<%= task.price %></span>
+            </div>
+            <div class="muted" style="font-size:13px; margin-top:4px">
+                <%= task.completedAt ? new Date(task.completedAt).toLocaleDateString('en-IN', { day:'numeric', month:'short' }) : '—' %>
+                · <%= task.pickupPoint %>
+            </div>
+        </a>
+    <% }); %>
+<% } %>
 
-    <% if (acceptedTasks.length === 0) { %>
-        <p class="text-muted">You haven't accepted any tasks yet.</p>
-    <% } else { %>
-        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 g-3">
-            <% for(let task of acceptedTasks) { %>
-                <div class="card col" style="margin: 0.5rem;">
-                    <div class="card-body">
-                        <% if (task.image) { %>
-                            <img src="<%= task.image %>" class="card-img-top mb-2" alt="Task Image" style="height: 150px; width: 100%; object-fit: cover;">
-                        <% } %>
-                        <h5 class="card-title"><%= task.subject %></h5>
-                        <p class="card-text">
-                            <b>Price : </b>&#8377;<%= task.price %><br>
-                            <b>Deadline : </b><%= task.deadline %><br>
-                            <b>Location : </b><%= task.location %>
-                        </p>
-                        <button class="btn btn-success w-100" disabled>Completed</button>
-                    </div>
-                </div>
-            <% } %>
-        </div>
-    <% } %>
+<div class="muted" style="font-size:12px; text-align:center; padding:24px 0 48px">
+    writeMe does not process payments. All ₹ is exchanged in person.
 </div>
