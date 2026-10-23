@@ -62,8 +62,6 @@ main()
         console.log(err);
     });
 
-
-
 app.listen(3030, ()=>{
     console.log("server started successfully on port 3030" )
 });
@@ -71,18 +69,7 @@ app.get("/home", async(req,res) =>{
     const allData= await Data.find({});
     res.render("home/show.ejs" , {allData});
 });
-
-
 //my status...........
-// Route: My Status Page
-// app.get("/mystatus", async (req, res) => {
-//   const currentUserId = "User1"; // Hardcoded for now until authentication is set up
-
-//   const myPostedTasks = await Data.find({ postedBy: currentUserId });
-//   const myAcceptedTasks = await Data.find({ acceptedBy: currentUserId });
-
-//   res.render("home/mystatus.ejs", { myPostedTasks, myAcceptedTasks });
-// });
 
 // Route: Accept a Task
 app.post("/listing/:id/accept", async (req, res) => {
@@ -158,10 +145,6 @@ app.get("/", async (req, res) => {
     }
 });
 //search
-
-
-
-
 //login page........
 // Render Signup Page
 app.get("/signup", (req, res) => {
@@ -205,9 +188,7 @@ app.get("/logout", (req, res, next) => {
     });
 });
 //login page
-
 //personal msgs......
-
 // Middleware to check if user is logged in
 function isLoggedIn(req, res, next) {
     if (!req.isAuthenticated()) {
@@ -242,32 +223,6 @@ app.get("/messages/:taskId", isLoggedIn, async (req, res) => {
         res.redirect("/inbox");
     }
 });
-// Send Message (Linked to logged-in user)
-// app.post("/messages/:taskId", isLoggedIn, async (req, res) => {
-//     try {
-//         const { taskId } = req.params;
-//         const task = await Data.findById(taskId);
-
-//         if (!task) {
-//             return res.redirect("/");
-//         }
-
-//         const newMessage = new Message({
-//             taskId: taskId,
-//             sender: req.user._id,
-//             receiver: task.author || req.user._id, // Fallback if author is missing
-//             content: req.body.content,             // Matches name="content" from input
-//             createdAt: new Date()
-//         });
-
-//         await newMessage.save();
-//         res.redirect(`/messages/${taskId}`);
-//     } catch (err) {
-//         console.log("SEND MESSAGE ERROR:", err);
-//         res.redirect("/");
-//     }
-// });
-
 
 // User Inbox - View all chats the logged-in user participated in
 app.get("/inbox", isLoggedIn, async (req, res) => {
@@ -294,7 +249,6 @@ app.get("/inbox", isLoggedIn, async (req, res) => {
                 }
             }
         }
-
         const tasks = Array.from(taskMap.values());
         res.render("home/inbox.ejs", { tasks, currentUser: req.user });
     } catch (err) {
@@ -303,7 +257,6 @@ app.get("/inbox", isLoggedIn, async (req, res) => {
     }
 });
 //personal messages
-
 app.post("/messages/:taskId", isLoggedIn, async (req, res) => {
     try {
         // Directly pull taskId from req.params
@@ -314,7 +267,6 @@ app.post("/messages/:taskId", isLoggedIn, async (req, res) => {
             console.log("ERROR: Task ID is missing from URL parameters!");
             return res.redirect("/");
         }
-
         const task = await Data.findById(taskId);
         if (!task) {
             return res.redirect("/");
@@ -354,22 +306,18 @@ app.get("/mystatus", isLoggedIn, async (req, res) => {
         res.redirect("/");
     }
 });
-
 //post new task........
 // Render page/form to post a new task
 app.get("/tasks/new", isLoggedIn, (req, res) => {
     res.render("home/new");
 });
-
 // Process form submission and save task with author ID
 app.post("/tasks", isLoggedIn, async (req, res) => {
     try {
         const newTask = new Data(req.body.data);
-        
         // Link task to the logged-in user
         newTask.author = req.user._id; 
         newTask.status = "open"; // Default status for new tasks
-
         await newTask.save();
         res.redirect("/home"); // Redirect directly to dashboard to see it!
     } catch (err) {
@@ -377,7 +325,6 @@ app.post("/tasks", isLoggedIn, async (req, res) => {
         res.redirect("/");
     }
 });
-
 app.get("/clean-db", async (req, res) => {
     // Delete messages that don't have a valid taskId attached
     await Message.deleteMany({ taskId: { $exists: false } });
@@ -385,3 +332,4 @@ app.get("/clean-db", async (req, res) => {
     res.send("Cleaned corrupted messages from DB!");
 
 });
+
