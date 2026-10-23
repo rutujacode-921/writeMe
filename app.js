@@ -48,7 +48,7 @@ app.use(
     })
 );
 
-<<<<<<< HEAD
+HEAD
 app.listen(3030, ()=>{
     console.log("server started successfully on port 3030" )
 });
@@ -181,14 +181,17 @@ function isLoggedIn(req, res, next) {
     if (!req.isAuthenticated()) {
         return res.redirect("/login");
     }
-=======
+
+
+}
+
 // Hydrate user from session.
 app.use(attachUser);
 
 // Expose common locals.
 app.use((req, res, next) => {
     res.locals.currentPath = req.path;
->>>>>>> ca845871046c80c2f13a4e9f02ff432cf0d0c46a
+ ca845871046c80c2f13a4e9f02ff432cf0d0c46a
     next();
 });
 
@@ -221,7 +224,7 @@ start().catch((err) => {
     console.error("[writeMe] failed to start:", err);
     process.exit(1);
 });
-<<<<<<< HEAD
+HEAD
 
 // User Inbox - View all chats the logged-in user participated in
 app.get("/inbox", isLoggedIn, async (req, res) => {
@@ -332,5 +335,5 @@ app.get("/clean-db", async (req, res) => {
 
 });
 
-=======
->>>>>>> ca845871046c80c2f13a4e9f02ff432cf0d0c46a
+
+ ca845871046c80c2f13a4e9f02ff432cf0d0c46a
