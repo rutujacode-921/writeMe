@@ -1,26 +1,48 @@
 <% layout("/layouts/boilerplate") %>
+<% const v = values || {}; %>
 
-<div class="row mt-4 justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <h3 class="mb-3 text-center">Sign Up for WriteMe</h3>
-        <form action="/signup" method="POST" class="needs-validation">
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" name="username" id="username" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="college" class="form-label">College / Department</label>
-                <input type="text" name="college" id="college" class="form-control" placeholder="e.g. CSE">
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" id="password" class="form-control" required>
-            </div>
-            <button class="btn btn-success w-100">Sign Up</button>
-        </form>
-    </div>
+<div style="max-width:420px; margin:40px auto 0">
+    <h1 style="font-size:24px; font-weight:800; margin:0 0 8px">Create your writeMe account</h1>
+    <p class="muted" style="margin:0 0 24px">Already have one? <a href="/auth/login">Log in</a></p>
+
+    <% if (errors && errors.length) { %>
+        <div style="background:rgba(231,76,60,0.1); color:var(--color-danger); padding:12px; border-radius:12px; margin-bottom:16px">
+            <% errors.forEach(function(e) { %>
+                <div><%= e.msg %></div>
+            <% }); %>
+        </div>
+    <% } %>
+
+    <form method="POST" action="/auth/signup">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+        <div class="form-group">
+            <label class="form-label" for="name">Your name</label>
+            <input class="form-input" type="text" name="name" id="name"
+                   value="<%= v.name || '' %>" placeholder="e.g. Rutuja Rangoji" required />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <input class="form-input" type="text" name="username" id="username"
+                   value="<%= v.username || '' %>" placeholder="e.g. rutuja"
+                   pattern="[a-zA-Z0-9_]{3,30}" required />
+            <div class="form-help">3-30 letters, numbers, or underscore. Lowercase.</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="email">Email (optional)</label>
+            <input class="form-input" type="email" name="email" id="email"
+                   value="<%= v.email || '' %>" placeholder="you@college.edu" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-input" type="password" name="password" id="password"
+                   minlength="6" required />
+            <div class="form-help">At least 6 characters.</div>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--block">Create account</button>
+    </form>
 </div>

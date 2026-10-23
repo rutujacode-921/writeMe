@@ -1,34 +1,64 @@
 <% layout("/layouts/boilerplate") %>
+<%
+    const v = values || {};
+%>
 
-<div class="container mt-4 col-6 offset-3">
-  <h3>Post a New Task</h3>
-  <form action="/tasks" method="POST">
-    <div class="mb-3">
-      <label for="subject" class="form-label">Subject</label>
-      <input type="text" name="data[subject]" id="subject" class="form-control" placeholder="e.g. Chemistry Record Book" required>
-    </div>
-    <div class="mb-3">
-      <label for="pages" class="form-label">pages</label>
-      <input type="number" name="data[pages]" id="pages" class="form-control" placeholder="200-300" required>
-    </div>
+<a href="/" class="muted" style="font-size:14px">← Back</a>
+<h1 style="font-size:22px; font-weight:700; margin:8px 0 24px">Post a new task</h1>
 
-   
-    <div class="mb-3">
-      <label for="price" class="form-label">Price (₹)</label>
-      <input type="number" name="data[price]" id="price" class="form-control" placeholder="200" required>
+<% if (errors && errors.length) { %>
+    <div style="background:rgba(231,76,60,0.1); color:var(--color-danger); padding:12px; border-radius:12px; margin-bottom:16px">
+        <% errors.forEach(function(e) { %>
+            <div><%= e.msg %><% if (e.path) { %> (<%= e.path %>)<% } %></div>
+        <% }); %>
     </div>
+<% } %>
 
-    <div class="mb-3">
-      <label for="deadline" class="form-label">Deadline</label>
-      <input type="text" name="data[deadline]" id="deadline" class="form-control" placeholder="e.g. 2 oct 2026">
-    </div>
+<form method="POST" action="/tasks">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 
-     <div class="mb-3">
-      <label for="location" class="form-label">Location</label>
-      <input type="text" name="data[location]" id="location" class="form-control" placeholder="e.g. Library / Block A" required>
+    <div class="form-group">
+        <label class="form-label" for="subject">Subject</label>
+        <input class="form-input" type="text" name="data[subject]" id="subject"
+               value="<%= v.subject || '' %>"
+               placeholder="e.g. Chemistry Record Book" required />
     </div>
 
+    <div class="form-group">
+        <label class="form-label">Page range</label>
+        <div class="form-row">
+            <input class="form-input" type="number" min="1" name="data[pagesMin]"
+                   value="<%= v.pagesMin || '' %>" placeholder="From" required />
+            <input class="form-input" type="number" min="1" name="data[pagesMax]"
+                   value="<%= v.pagesMax || '' %>" placeholder="To" required />
+        </div>
+    </div>
 
-    <button class="btn btn-success">Post Task</button>
-  </form>
-</div>
+    <div class="form-group">
+        <label class="form-label" for="price">Price (₹)</label>
+        <div class="form-row">
+            <input class="form-input" type="number" min="1" name="data[price]" id="price"
+                   value="<%= v.price || '' %>" placeholder="250" required />
+            <select class="form-select" name="data[priceType]">
+                <option value="fixed" <%= v.priceType === 'fixed' ? 'selected' : '' %>>Fixed</option>
+                <option value="negotiable" <%= v.priceType === 'negotiable' ? 'selected' : '' %>>Negotiable</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="deadline">Deadline</label>
+        <input class="form-input" type="date" name="data[deadline]" id="deadline"
+               value="<%= v.deadline || '' %>" required />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="pickupPoint">Pickup point</label>
+        <input class="form-input" type="text" name="data[pickupPoint]" id="pickupPoint"
+               value="<%= v.pickupPoint || (currentUser && currentUser.defaultPickup) || '' %>"
+               placeholder="e.g. Main Library" required />
+        <div class="form-help">Choose a public campus spot. Avoid hostels/rooms.</div>
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--block">Post Task</button>
+</form>

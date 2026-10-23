@@ -1,0 +1,88 @@
+<% layout("/layouts/boilerplate") %>
+<%
+    const dl = task.deadline ? new Date(task.deadline).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" }) : "—";
+    const pages = task.pagesMin === task.pagesMax ? `${task.pagesMin} pages` : `${task.pagesMin}-${task.pagesMax} pages`;
+%>
+
+<a href="/" class="muted" style="font-size:14px">← Back to feed</a>
+
+<div style="margin-top:16px; padding:20px; background:var(--color-surface-raised); border:1px solid var(--color-border); border-radius:16px">
+    <div class="row row--between" style="margin-bottom:12px">
+        <h1 style="font-size:22px; font-weight:700; margin:0"><%= task.subject %></h1>
+        <%- include("../includes/components/statuspill.ejs", { status: task.status }) %>
+    </div>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px">
+        <span class="badge badge--money">₹<%= task.price %> <% if (task.priceType === 'negotiable') { %>· negotiable<% } %></span>
+        <span class="badge"><%= pages %></span>
+        <span class="badge">⏳ <%= dl %></span>
+        <span class="badge">📍 <%= task.pickupPoint %></span>
+        <span class="badge"><%= task.campus %></span>
+    </div>
+
+    <div class="muted" style="font-size:14px; margin-bottom:16px">
+        Posted by <strong><%= task.author ? task.author.name : "— deleted user" %></strong>
+        <% if (task.author && task.author.college) { %> · <%= task.author.college %><% } %>
+    </div>
+
+    <% if (task.acceptedBy) { %>
+        <div class="muted" style="font-size:14px; margin-bottom:16px">
+            Accepted by <strong><%= task.acceptedBy.name %></strong>
+        </div>
+    <% } %>
+
+    <% if (!currentUser) { %>
+        <p class="muted">Sign in to accept or chat about this task.</p>
+    <% } else { %>
+
+        <%
+            const isPoster = role === 'poster';
+            const isWriter = role === 'writer';
+            const isParty = isPoster || isWriter;
+        %>
+
+        <div class="stack-sm">
+            <% if (task.status === 'OPEN' && !isPoster) { %>
+                <form method="POST" action="/tasks/<%= task._id %>/accept">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn--primary btn--block">Accept & start writing</button>
+                </form>
+            <% } %>
+
+            <% if (isParty) { %>
+                <a href="/tasks/<%= task._id %>/chat" class="btn btn--secondary btn--block">💬 Open chat</a>
+            <% } %>
+
+            <% if (isWriter && task.status === 'IN_PROGRESS') { %>
+                <form method="POST" action="/tasks/<%= task._id %>/deliver">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn--primary btn--block">Mark as delivered</button>
+                    <div class="form-help">Phase 2 will require uploading a proof photo. For now, confirms handover.</div>
+                </form>
+            <% } %>
+
+            <% if (isPoster && task.status === 'DELIVERED') { %>
+                <form method="POST" action="/tasks/<%= task._id %>/confirm">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn--primary btn--block">Confirm received</button>
+                </form>
+            <% } %>
+
+            <% if (isParty && !['COMPLETED','CANCELLED','DISPUTED'].includes(task.status)) { %>
+                <form method="POST" action="/tasks/<%= task._id %>/cancel">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <input type="hidden" name="reason" value="user requested" />
+                    <button type="submit" class="btn btn--secondary btn--block">Cancel task</button>
+                </form>
+            <% } %>
+
+            <% if (isParty && (task.status === 'DELIVERED' || task.status === 'COMPLETED')) { %>
+                <form method="POST" action="/tasks/<%= task._id %>/dispute">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <input type="hidden" name="reason" value="other" />
+                    <button type="submit" class="btn btn--danger btn--block">⚠ Raise a dispute</button>
+                </form>
+            <% } %>
+        </div>
+    <% } %>
+</div>

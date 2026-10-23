@@ -1,0 +1,22 @@
+<nav class="bottomnav">
+    <a href="/" class="bottomnav__item <%= currentPath === '/' ? 'is-active' : '' %>">
+        <span class="bottomnav__icon">🏠</span>
+        Feed
+    </a>
+    <a href="/mytasks" class="bottomnav__item <%= currentPath === '/mytasks' ? 'is-active' : '' %>">
+        <span class="bottomnav__icon">📋</span>
+        My
+    </a>
+    <a href="/tasks/new" class="bottomnav__item is-primary">
+        <span class="bottomnav__icon">+</span>
+        Post
+    </a>
+    <a href="/chats" class="bottomnav__item <%= currentPath === '/chats' ? 'is-active' : '' %>">
+        <span class="bottomnav__icon">💬</span>
+        Chats
+    </a>
+    <a href="/earnings" class="bottomnav__item <%= currentPath === '/earnings' ? 'is-active' : '' %>">
+        <span class="bottomnav__icon">💰</span>
+        Earn
+    </a>
+</nav>

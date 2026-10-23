@@ -1,67 +1,54 @@
-const express= require("express");
-const app=express();
-const mongoose=require('mongoose');
-const Data=require("./models/datamodel.js");
-const path=require("path");
-const methodOverride=require("method-override");
-const ejsMate=require("ejs-mate");
-const Message = require("./models/message");
-
-//login page............
+const env = require("./config/env");
+const express = require("express");
+const path = require("path");
 const session = require("express-session");
-const passport = require("passport");
-const LocalStrategy = require("passport-local");
-const User = require("./models/user");
+const MongoStore = require("connect-mongo").default;
+const cookieParser = require("cookie-parser");
+const csurf = require("csurf");
+const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
 
-// Session Configuration
-const sessionOptions = {
-    secret: "mysupersecretcode",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        httpOnly: true
-    }
-};
+const db = require("./config/db");
+const { attachUser } = require("./middleware/auth");
+const { notFound, serverError } = require("./middleware/error");
 
-app.use(session(sessionOptions));
+const authRoutes = require("./routes/auth");
+const onboardingRoutes = require("./routes/onboarding");
+const taskRoutes = require("./routes/tasks");
+const messageRoutes = require("./routes/messages");
 
-// Initialize Passport
-app.use(passport.initialize());
-app.use(passport.session());
+const app = express();
 
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// View engine
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.engine("ejs", ejsMate);
 
-// Pass currentUser variable to all EJS views automatically
-app.use((req, res, next) => {
-    res.locals.currentUser = req.user;
-    next();
-});
-//login page
-
-
+// Core middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
 app.use(methodOverride("_method"));
-app.use(express.urlencoded({extended: true}));
-app.use(express.static(path.join(__dirname,"/public")))
+app.use(express.static(path.join(__dirname, "public")));
 
-app.set("view engine" ,"ejs");
-app.set("views" ,path.join(__dirname,"views"));
-app.engine("ejs" , ejsMate);
-
-async function main(){
-    await mongoose.connect('mongodb://127.0.0.1:27017/writeme');
-}
-main()
-    .then(() => {
-        console.log("connected to DB");
+// Session
+app.use(
+    session({
+        name: "writeme.sid",
+        secret: env.sessionSecret,
+        resave: false,
+        saveUninitialized: false,
+        store: MongoStore.create({ mongoUrl: env.mongoUrl }),
+        cookie: {
+            httpOnly: true,
+            secure: env.isProd,
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        },
     })
-    .catch((err) => {
-        console.log(err);
-    });
+);
 
+<<<<<<< HEAD
 app.listen(3030, ()=>{
     console.log("server started successfully on port 3030" )
 });
@@ -194,35 +181,47 @@ function isLoggedIn(req, res, next) {
     if (!req.isAuthenticated()) {
         return res.redirect("/login");
     }
+=======
+// Hydrate user from session.
+app.use(attachUser);
+
+// Expose common locals.
+app.use((req, res, next) => {
+    res.locals.currentPath = req.path;
+>>>>>>> ca845871046c80c2f13a4e9f02ff432cf0d0c46a
     next();
+});
+
+// CSRF for all state-changing form POSTs.
+app.use(csurf({ cookie: false }));
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken ? req.csrfToken() : "";
+    next();
+});
+
+// Routes
+app.use("/auth", authRoutes);
+app.use("/onboarding", onboardingRoutes);
+app.use(taskRoutes);
+app.use(messageRoutes);
+
+// Error handling
+app.use(notFound);
+app.use(serverError);
+
+// Boot
+async function start() {
+    await db.connect();
+    app.listen(env.port, () => {
+        console.log(`[writeMe] listening on http://localhost:${env.port}`);
+    });
 }
 
-// View Chat for a Task (Only logged-in users)
-// View Chat for a Task (Only logged-in users)
-app.get("/messages/:taskId", isLoggedIn, async (req, res) => {
-    try {
-        const { taskId } = req.params;
-        const task = await Data.findById(taskId).populate("author");
-
-        if (!task) {
-            return res.redirect("/inbox");
-        }
-
-        // Fetch messages for this task that involve the currently logged-in user
-        const messages = await Message.find({
-            taskId: taskId,
-            $or: [
-                { sender: req.user._id },
-                { receiver: req.user._id }
-            ]
-        }).populate("sender receiver");
-
-        res.render("home/messages.ejs", { task, messages, currentUser: req.user });
-    } catch (err) {
-        console.log("FETCH MESSAGES ERROR:", err);
-        res.redirect("/inbox");
-    }
+start().catch((err) => {
+    console.error("[writeMe] failed to start:", err);
+    process.exit(1);
 });
+<<<<<<< HEAD
 
 // User Inbox - View all chats the logged-in user participated in
 app.get("/inbox", isLoggedIn, async (req, res) => {
@@ -333,3 +332,5 @@ app.get("/clean-db", async (req, res) => {
 
 });
 
+=======
+>>>>>>> ca845871046c80c2f13a4e9f02ff432cf0d0c46a

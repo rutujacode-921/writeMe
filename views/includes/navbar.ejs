@@ -1,34 +1,24 @@
-<nav class="navbar navbar-expand-md bg-body-tertiary border-bottom sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/"><i class="fa-regular fa-compass" ></i></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link " href="/">Home</a>
-        <a class="nav-link" href="/mystatus">my status</a>
-        <a class="nav-link" href="/earnings">total earnings</a>
-      </div>
-        <form  action="/" method="get" class="d-flex ms-auto" role="search" >
-          <input class="form-control me-2" name="location" type="search" placeholder="Search location" aria-label="Search"/>
-          <button class="btn-outline theme-success" type="submit">Search</button>
+<nav class="topnav">
+    <a href="/" class="topnav__brand">writeMe</a>
+    <div class="topnav__spacer"></div>
+    <% if (currentUser) { %>
+        <% if (currentUser.onboardedAt) { %>
+            <a href="/mytasks" class="hidden-mobile muted" style="font-size:14px;margin-right:12px">My Tasks</a>
+            <a href="/chats" class="hidden-mobile muted" style="font-size:14px;margin-right:12px">Chats</a>
+            <a href="/earnings" class="hidden-mobile muted" style="font-size:14px;margin-right:12px">Earnings</a>
+        <% } %>
+        <form action="/auth/logout" method="POST" style="margin:0">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button type="submit" class="topnav__avatar" title="Sign out — <%= currentUser.name %>" style="border:none;cursor:pointer">
+                <% if (currentUser.avatar) { %>
+                    <img src="<%= currentUser.avatar %>" alt="<%= currentUser.name %>" />
+                <% } else { %>
+                    <%= (currentUser.name || "?").charAt(0).toUpperCase() %>
+                <% } %>
+            </button>
         </form>
-
-        <div class="navbar-nav ms-auto">
-    <% if (!currentUser) { %>
-        <a class="nav-link" href="/signup">Sign Up</a>
-        <a class="nav-link" href="/login">Login</a>
     <% } else { %>
-        <a class="nav-link" href="/inbox">Inbox</a>
-        <a class="nav-link btn btn-outline-primary me-2" href="/tasks/new">+ Post a Task</a>
-        <span class="nav-link text-primary fw-bold">Hi, <%= currentUser.username %></span>
-        <a class="nav-link" href="/logout">Logout</a>
+        <a href="/auth/login" class="btn btn--secondary btn--sm">Log in</a>
+        <a href="/auth/signup" class="btn btn--primary btn--sm" style="margin-left:8px">Sign up</a>
     <% } %>
-</div>
-  
-     
-    </div>
-  </div>
 </nav>
-   

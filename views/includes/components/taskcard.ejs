@@ -1,0 +1,31 @@
+<%
+    const now = new Date();
+    const dl = task.deadline ? new Date(task.deadline) : null;
+    const hours = dl ? Math.round((dl - now) / 36e5) : null;
+    let dlLabel = "No deadline";
+    let dlClass = "badge";
+    if (dl) {
+        const dateStr = dl.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+        if (hours < 0) { dlLabel = "Overdue"; dlClass = "badge badge--urgent"; }
+        else if (hours < 24) { dlLabel = dateStr + " · <24h"; dlClass = "badge badge--urgent"; }
+        else if (hours < 72) { dlLabel = dateStr + " · " + Math.round(hours/24) + "d"; dlClass = "badge badge--soon"; }
+        else { dlLabel = dateStr + " · " + Math.round(hours/24) + "d"; dlClass = "badge badge--ok"; }
+    }
+    const pages = task.pagesMin === task.pagesMax
+        ? `${task.pagesMin} pages`
+        : `${task.pagesMin}-${task.pagesMax} pages`;
+%>
+<a href="/tasks/<%= task._id %>" class="taskcard">
+    <div class="taskcard__header">
+        <div class="taskcard__title"><%= task.subject %></div>
+        <span class="badge badge--money">₹<%= task.price %></span>
+    </div>
+    <div class="taskcard__meta">
+        <span><%= pages %></span>
+        <span class="<%= dlClass %>"><%= dlLabel %></span>
+        <span>📍 <%= task.pickupPoint %><% if (task.campus && task.campus !== 'Unknown') { %> · <%= task.campus %><% } %></span>
+    </div>
+    <div class="taskcard__meta" style="margin-top:8px">
+        <span>by <%= task.author && task.author.name ? task.author.name : "— deleted" %><% if (task.author && task.author.ratingCount) { %> · ⭐ <%= task.author.rating.toFixed(1) %><% } %></span>
+    </div>
+</a>

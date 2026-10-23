@@ -1,0 +1,61 @@
+<% layout("/layouts/boilerplate") %>
+
+<a href="/chats" class="muted" style="font-size:14px">← Chats</a>
+
+<div style="padding:12px 0 8px; border-bottom:1px solid var(--color-border); margin-bottom:12px">
+    <div class="row row--between">
+        <div>
+            <div style="font-weight:700"><%= task.subject %> · ₹<%= task.price %></div>
+            <div class="muted" style="font-size:13px">
+                with <%= task.author._id.equals(currentUser._id)
+                    ? (task.acceptedBy ? task.acceptedBy.name : "— nobody yet")
+                    : task.author.name %>
+            </div>
+        </div>
+        <%- include("../includes/components/statuspill.ejs", { status: task.status }) %>
+    </div>
+    <a href="/tasks/<%= task._id %>" style="font-size:13px">View task details →</a>
+</div>
+
+<div class="chat">
+    <div class="chat__messages" id="messages">
+        <% if (messages.length === 0) { %>
+            <div class="muted" style="text-align:center; padding:40px 0">
+                Say hi 👋 — agree on where and when to hand this over.
+            </div>
+        <% } %>
+        <% messages.forEach(function(msg) { %>
+            <%
+                const isMe = msg.sender.equals(currentUser._id);
+                const isSys = msg.type === 'system';
+                const time = new Date(msg.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+            %>
+            <% if (isSys) { %>
+                <div class="bubble bubble--system"><%= msg.content %></div>
+            <% } else { %>
+                <div class="bubble <%= isMe ? 'bubble--me' : '' %>">
+                    <%= msg.content %>
+                    <span class="bubble__time"><%= time %></span>
+                </div>
+            <% } %>
+        <% }); %>
+    </div>
+
+    <% if (!['COMPLETED','CANCELLED'].includes(task.status) && (task.author._id.equals(currentUser._id) || (task.acceptedBy && task.acceptedBy._id.equals(currentUser._id))) && task.acceptedBy) { %>
+        <form class="chat__composer" method="POST" action="/tasks/<%= task._id %>/messages">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input class="form-input" type="text" name="content" placeholder="Type a message…" autocomplete="off" required />
+            <button type="submit" class="btn btn--primary">Send</button>
+        </form>
+    <% } else if (['COMPLETED','CANCELLED'].includes(task.status)) { %>
+        <div style="padding:12px; text-align:center; color:var(--color-text-muted); border-top:1px solid var(--color-border)">
+            This chat is closed.
+        </div>
+    <% } %>
+</div>
+
+<script>
+    // Scroll to bottom on load
+    const m = document.getElementById('messages');
+    if (m) m.scrollTop = m.scrollHeight;
+</script>
